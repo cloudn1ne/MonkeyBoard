@@ -35,7 +35,9 @@ const ColorPicker = ({onChangeColor}: ColorPickerProps) => {
     }, [onChangeColor]);
 
     return (
-        <toolcool-color-picker ref={ colorPickerRef }  color="#ff0000" />
+        <button className={"btn btn-outline"}>
+        <toolcool-color-picker ref={ colorPickerRef } color="#ff0000" />
+        </button>
     )
 };
 

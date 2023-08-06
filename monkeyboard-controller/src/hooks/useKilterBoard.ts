@@ -7,6 +7,7 @@ export interface KilterBoard {
     setLED_v3: (holdnum:number, r:number, g:number, b:number) => void;
     setPixel: (x:number, y:number,  r:number, g:number, b:number) => void;
     addPixel: (x:number, y:number,  r:number, g:number, b:number) => void;
+    deletePixel: (x:number, y:number) => void;
     clearPixels: () => void;
     publishPixels: () => void;
     loop: () => void;
@@ -120,6 +121,21 @@ export const useKilterBoard = (): KilterBoard => {
         console.log("addPixel() %d/%d => %d", x, y, holdnum);
         if ((holdnum !== -1) && !testPixel(holdnum)) {
             ActivePixels.push({holdnum, r,g,b})
+        }
+    };
+
+    const deletePixel =  (x: number, y: number) => {
+        let holdnum:number = PixelMapping[y][x];
+        console.log("deletePixel() %d/%d => %d", x, y, holdnum);
+        if ((holdnum !== -1) && testPixel(holdnum)) {
+            // ActivePixels.push({holdnum, r,g,b})
+            for (let i=0; i<ActivePixels.length; i++)
+            {
+                if (ActivePixels[i].holdnum === holdnum) {
+                    ActivePixels.splice(i, 1);
+                    break;
+                }
+            }
         }
     };
 
@@ -262,5 +278,5 @@ export const useKilterBoard = (): KilterBoard => {
     }
 
 
-    return { connect, setLED_v3, setPixel, addPixel, clearPixels, publishPixels, loop, isConnected, getHoldNum };
+    return { connect, setLED_v3, setPixel, addPixel, deletePixel, clearPixels, publishPixels, loop, isConnected, getHoldNum };
 };

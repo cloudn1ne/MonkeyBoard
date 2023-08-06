@@ -7,7 +7,7 @@ import ColorPicker from "./ColorPicker";
 
 export default function DrawCanvas()
 {
-    const { addPixel, clearPixels, publishPixels, getHoldNum } = useKilterBoard();
+    const { addPixel, deletePixel, clearPixels, publishPixels, getHoldNum } = useKilterBoard();
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
     const [coords, handleCoords] = useMousePosition(true);
@@ -25,6 +25,21 @@ export default function DrawCanvas()
 
     function timeout(delay: number) {
         return new Promise( res => setTimeout(res, delay) );
+    }
+
+    const savePixels = () => {
+        if (canvasRef.current) {
+            let canvasUrl = canvasRef.current.toDataURL();
+            const createEl = document.createElement('a');
+            createEl.href = canvasUrl;
+
+            // This is the name of our downloaded file
+            createEl.download = "saved-canvas";
+
+            // Click the download button, causing a download, and then remove it
+            createEl.click();
+            createEl.remove();
+        }
     }
 
     const handleLoadImage = (event: ChangeEvent<HTMLInputElement>) =>
@@ -64,7 +79,9 @@ export default function DrawCanvas()
                             for (let x = 0; x < 26; x++) {
                                 for (let y = 0; y < 28; y++) {
                                     let data = previewCtx.getImageData(x, y, 1, 1).data;
-                                    if  ((data[0] !== 0xff || data[1] !== 0xff || data[2] !== 0xff) &&  (getHoldNum(x, y) !== -1)) {
+                                    if  ((data[0] !== 0xff || data[1] !== 0xff || data[2] !== 0xff) &&
+                                         (data[0] !== 0x0 || data[1] !== 0x0 || data[2] !== 0x0) &&
+                                         (getHoldNum(x, y) !== -1)) {
                                         // add pixel to Bluetooth Pixel Buffer
                                         addPixel(x, y, data[0], data[1], data[2]);
                                         console.log(pc++);
@@ -94,9 +111,31 @@ return (
             height="580"
             style={{ border: "2px solid black" }}
 
+            // remove pixel (right click)
+            onContextMenu={
+                (e) => {
+                    e.preventDefault();
+                    if (canvasRef.current) {
+                        const ctx = canvasRef.current.getContext("2d");
+                        if (ctx) {
+                            let x = Math.round(coords.x / 20);
+                            let y = Math.round(coords.y / 20);
+                            if (x > 26) x = 26;
+                            if (y > 28) y = 28;
+
+                            if (getHoldNum(x, y) !== -1) {
+                                ctx.beginPath();
+                                ctx.clearRect(x * 20-1, y * 20-1, 22, 22);
+                                deletePixel(x, y);
+                            }
+                        }
+                    }
+                }
+
+            }
             onMouseMove={ // while moving
                 (e) => {
-                    if (e.buttons === 1) {  // while mousedown and moving
+                    if (e.buttons === 1) {  // while LEFT mousedown and moving
                         handleCoords((e as unknown) as MouseEvent);
                         if (canvasRef.current) {
                             const ctx = canvasRef.current.getContext("2d");
@@ -108,7 +147,7 @@ return (
 
                                 if (getHoldNum(x, y) !== -1) {
                                     ctx.beginPath();
-                                    ctx.roundRect(x * 20, y * 20, 20, 20, [5, 5, 5, 5]);
+                                    ctx.roundRect(x * 20+2, y * 20+2, 16, 16,  [5,5,5,5]);
                                     ctx.stroke();
                                     ctx.fillStyle = drawingColor;
                                     ctx.fill();
@@ -125,6 +164,8 @@ return (
             }
         ></canvas>
         <p></p>
+        <ColorPicker onChangeColor={setDrawingColor}/>
+        <span> </span>
         <button type="button" className="btn btn-warning"
             onClick={() => {
                 if (canvasRef.current) {
@@ -144,14 +185,22 @@ return (
         >
             PUBLISH
         </button>
-        <input type="file" className="btn btn-outline-primary" name="image" placeholder='Image' accept="image/*" onChange={e => handleLoadImage(e)}/>
+        <span> </span>
+        <button type="button" className="btn btn-success"
+                onClick={() => {
+                    savePixels();
+                }}
+        >
+            SAVE
+        </button>
+        <span> </span>
+        <input type="file" className="btn btn-outline-primary"  name="image" placeholder='Image' accept="image/*" onChange={e => handleLoadImage(e)}/>
         <canvas
             ref={previewCanvasRef}
             width="26"
             height="28"
             style={{visibility: 'hidden'}}
         />
-        <ColorPicker onChangeColor={setDrawingColor}/>
     </>
 );
 }
