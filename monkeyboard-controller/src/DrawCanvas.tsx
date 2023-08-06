@@ -39,6 +39,8 @@ export default function DrawCanvas()
             if (canvasRef.current) {
                 const ctx = canvasRef.current.getContext("2d");
                 ctx?.clearRect(0, 0, 540, 580);
+                const previewCtx = previewCanvasRef?.current?.getContext("2d");
+                previewCtx?.clearRect(0, 0, 540, 580);
                 clearPixels();
             }
 
@@ -62,7 +64,7 @@ export default function DrawCanvas()
                             for (let x = 0; x < 26; x++) {
                                 for (let y = 0; y < 28; y++) {
                                     let data = previewCtx.getImageData(x, y, 1, 1).data;
-                                    if  (data[0] !== 0xff || data[1] !== 0xff || data[2] !== 0xff) {
+                                    if  ((data[0] !== 0xff || data[1] !== 0xff || data[2] !== 0xff) &&  (getHoldNum(x, y) !== -1)) {
                                         // add pixel to Bluetooth Pixel Buffer
                                         addPixel(x, y, data[0], data[1], data[2]);
                                         console.log(pc++);
