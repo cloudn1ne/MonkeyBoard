@@ -32,7 +32,7 @@ const ColorPicker = ({onChangeColor}: ColorPickerProps) => {
         return () => {
             colorPicker?.removeEventListener('change', onColorChange);
         };
-    }, []);
+    }, [onChangeColor]);
 
     return (
         <toolcool-color-picker ref={ colorPickerRef }  color="#ff0000" />
