@@ -1,4 +1,3 @@
-import * as React from "react";
 import {useBetween} from "use-between";
 import {useShareableBluetoothState} from "../App";
 
@@ -101,7 +100,7 @@ export const useKilterBoard = (): KilterBoard => {
     const setPixel = async (x: number, y: number, r: number, g: number, b: number) => {
         let holdnum = PixelMapping[y][x];
         console.log("setPixel() %d/%d => %d", x, y, holdnum);
-        if (holdnum != -1) {
+        if (holdnum !== -1) {
             await setLED_v3(holdnum, r, g, b);
         }
     };
@@ -119,7 +118,7 @@ export const useKilterBoard = (): KilterBoard => {
     const addPixel =  (x: number, y: number, r: number, g: number, b: number) => {
         let holdnum:number = PixelMapping[y][x];
         console.log("addPixel() %d/%d => %d", x, y, holdnum);
-        if ((holdnum != -1) && !testPixel(holdnum)) {
+        if ((holdnum !== -1) && !testPixel(holdnum)) {
             ActivePixels.push({holdnum, r,g,b})
         }
     };

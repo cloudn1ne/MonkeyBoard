@@ -4,7 +4,7 @@
  */
 import * as React from "react";
 import { useKilterBoard} from "./hooks/useKilterBoard";
-import {ChangeEvent, useEffect, useRef, useState} from "react";
+import {ChangeEvent, useRef} from "react";
 import HighlightSquare from "./MouseDraw";
 
 export const useShareableBluetoothState = () => {
@@ -46,7 +46,7 @@ export const App = () => {
         console.log(files);
         if (files && files[0]) {
             console.log("converting upload to base64");
-            const base64 = toBase64(files[0]).then( value => {
+            toBase64(files[0]).then( value => {
                     console.log(value)
                     let img = new Image();
                     if (typeof value === "string") {
@@ -104,7 +104,7 @@ export const App = () => {
                 <div className="container">
                     <div className="row">
                         <div className="col">
-                            <img src="/images/monkey1.jpeg"/>
+                            <img alt="Monkey Logo" src="/images/monkey1.jpeg"/>
                         </div>
                     </div>
                     <div className="row">

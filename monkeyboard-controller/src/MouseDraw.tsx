@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import useMousePosition from "./hooks/useMousePosition";
 import {useKilterBoard} from "./hooks/useKilterBoard";
 
 export default function HighlightSquare()
 {
-    const { setPixel, addPixel, clearPixels, publishPixels, getHoldNum } = useKilterBoard();
+    const { addPixel, clearPixels, publishPixels, getHoldNum } = useKilterBoard();
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [coords, handleCoords] = useMousePosition(true);
 
