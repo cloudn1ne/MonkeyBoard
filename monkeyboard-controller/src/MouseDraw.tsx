@@ -10,7 +10,8 @@ export default function HighlightSquare()
 
 return (
     <>
-        <h1>Etch a KilterBoard</h1>
+        <p></p>
+        <h1>Etch a KilterBoard <small>v0.1</small></h1>
         <canvas
             ref={canvasRef}
             width="540"
@@ -42,7 +43,8 @@ return (
                 }
             }
         ></canvas>
-        <button
+        <p></p>
+        <button type="button" className="btn btn-warning"
             onClick={() => {
                 if (canvasRef.current) {
                     const ctx = canvasRef.current.getContext("2d");
@@ -53,7 +55,8 @@ return (
         >
             CLEAR
         </button>
-        <button
+        <span> </span>
+        <button type="button" className="btn btn-success"
             onClick={() => {
                 publishPixels();
             }}

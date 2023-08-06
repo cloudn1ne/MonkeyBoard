@@ -76,20 +76,18 @@ export const App = () => {
   return (
       <div
           style={{
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+              //height: "100vh",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
           }}
       >
         {isConnected ? (
             <p>
-                <button onClick={loop}>Loop</button>
-                <button onClick={()=>setLED_v3(181, 0xff,0,0)}>Toggle Red 181</button>
-                <button onClick={()=>setLED_v3(210, 0,0xff,0)}>Toggle Green 210</button>
-                <button onClick={()=>setLED_v3(239, 0,0,0xff)}>Toggle Blue 239</button>
-                <button onClick={()=>setPixel(1, 0,0,0xff,  0x0)}>Toggle Pixel</button>
-                <input type="file" name="image" placeholder='Image' accept="image/*" onChange={e => handleSetImage(e)}/>
+                <button type="button" className="btn btn-outline-primary" onClick={loop}>Loop</button>
+                <button type="button" className="btn btn-outline-primary" onClick={()=>setLED_v3(210, 0xff,0,0)}>Toggle Red 210</button>
+                <button type="button" className="btn btn-outline-primary" onClick={()=>setPixel(1, 0,0,0xff,  0x0)}>Toggle Pixel 1/0</button>
+                <input type="file" className="btn btn-outline-primary" name="image" placeholder='Image' accept="image/*" onChange={e => handleSetImage(e)}/>
                 <canvas
                     ref={canvasRef}
                     width="26"
@@ -98,7 +96,20 @@ export const App = () => {
                 <HighlightSquare/>
             </p>
         ) : (
-            <button onClick={connect}>Connect</button>
+            <>
+                <div className="container">
+                    <div className="row">
+                        <div className="col">
+                            <img src="/images/monkey1.jpeg"/>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col">
+                            <button type="button" className="btn btn-danger btn-lg" onClick={connect}>Release the Monkey !</button>
+                        </div>
+                    </div>
+                </div>
+            </>
         )}
       </div>
   );
