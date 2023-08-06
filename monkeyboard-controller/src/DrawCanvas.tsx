@@ -12,7 +12,7 @@ export default function DrawCanvas()
     const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
     const [coords, handleCoords] = useMousePosition(true);
 
-    const [drawingColor, setDrawingColor] = React.useState("rgb(0,255,0)");
+    const [drawingColor, setDrawingColor] = React.useState("rgb(255,0,0)"); // Default color is #ff0000
 
     async function toBase64(file:any) {
         return new Promise((resolve, reject) => {
