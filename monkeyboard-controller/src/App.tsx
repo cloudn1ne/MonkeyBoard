@@ -1,3 +1,7 @@
+/*
+ * (c) CyberNet, 2023 cn@warp.at
+ *
+ */
 import * as React from "react";
 import { useKilterBoard} from "./hooks/useKilterBoard";
 import {ChangeEvent, useEffect, useRef, useState} from "react";
