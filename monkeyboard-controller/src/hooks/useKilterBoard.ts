@@ -160,7 +160,7 @@ export const useKilterBoard = (): KilterBoard => {
 
     // activate all pixels stored in ActivePixels
     const publishPixels = async () => {
-        let max_chunk_size = 80;
+        let max_chunk_size = 4;
 
         if (ActivePixels.length > max_chunk_size) {
             // more than one packet is needed

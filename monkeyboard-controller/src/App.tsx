@@ -20,9 +20,21 @@ export const useShareableBluetoothState = () => {
 
 export const App = () => {
 
-    const { connect, setLED_v3, setPixel, loop, isConnected } = useKilterBoard();
+    const { connect, setLED_v3, setPixel, addPixel, clearPixels,publishPixels, loop, isConnected } = useKilterBoard();
     // const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+    const setTwoPixels = () => {
+        clearPixels();
+        if (!isConnected)
+        {
+            connect();
+        }
+        addPixel(1,0, 255,0,0);
+        addPixel( 0,1 , 255, 255, 0);
+        addPixel(25,0, 255,0,0);
+        addPixel( 26,1 , 255, 255, 0);
+        publishPixels();
+    }
   return (
       <div
           style={{
@@ -35,7 +47,7 @@ export const App = () => {
         {isConnected ? (
             <p>
                 <button type="button" className="btn btn-outline-primary" onClick={loop}>Loop</button>
-                <button type="button" className="btn btn-outline-primary" onClick={()=>setLED_v3(210, 0xff,0,0)}>Toggle Red 210</button>
+                <button type="button" className="btn btn-outline-primary" onClick={()=>setTwoPixels()}>Set FourPixels</button>
                 <button type="button" className="btn btn-outline-primary" onClick={()=>setPixel(1, 0,0,0xff,  0x0)}>Toggle Pixel 1/0</button>
                 <DrawCanvas/>
             </p>
