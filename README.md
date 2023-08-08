@@ -4,5 +4,8 @@ KilterBoard Custom Web Interface
 
 ## Requirements
 
-npm install -D @types/web-bluetooth
+npm i use-between toolcool-color-picker
+
+#npm install -D @types/web-bluetooth
+#npm install --save-dev @babel/plugin-proposal-private-property-in-object
 
