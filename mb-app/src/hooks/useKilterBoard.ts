@@ -230,6 +230,11 @@ export const useKilterBoard = (): KilterBoard => {
     }
 
     const loop = async () => {
+        if (!isConnected)
+        {
+            await connect();
+        }
+
         for (let y = 0; y <= ROWS; y++) {
             for (let x = 0; x <= COLS; x++) {
                 await setPixel(x, y, 0, 0, 0xff);

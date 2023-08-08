@@ -11,7 +11,18 @@ export const useMousePosition = (
         y: 0
     });
 
+    // Mouse
     const handleCursorMovement = (event: MouseEvent): void => {
+        //@ts-ignore
+        let rect = event.target.getBoundingClientRect();
+        setMouseCoords({
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        });
+    };
+
+    // Android has no mouse, so we use touch instead
+    const handleTouch = (event: any): void => {
         //@ts-ignore
         let rect = event.target.getBoundingClientRect();
         setMouseCoords({
@@ -22,9 +33,10 @@ export const useMousePosition = (
     useEffect(() => {
         if (global) {
             window.addEventListener("mousemove", handleCursorMovement);
-
+            window.addEventListener("touchend", handleTouch);
             return () => {
                 window.removeEventListener("mousemove", handleCursorMovement);
+                window.removeEventListener("touchend", handleTouch);
             };
         }
     }, [global]);

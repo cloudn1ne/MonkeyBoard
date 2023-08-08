@@ -1,4 +1,4 @@
-import {ChangeEvent, useRef} from "react";
+import {ChangeEvent, useRef, useState} from "react";
 import useMousePosition from "./hooks/useMousePosition";
 import {useKilterBoard} from "./hooks/useKilterBoard";
 import * as React from "react";
@@ -7,12 +7,38 @@ import ColorPicker from "./ColorPicker";
 
 export default function DrawCanvas()
 {
-    const { addPixel, deletePixel, clearPixels, publishPixels, getHoldNum } = useKilterBoard();
+    const { isConnected, connect, addPixel, deletePixel, clearPixels, publishPixels, getHoldNum } = useKilterBoard();
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
     const [coords, handleCoords] = useMousePosition(true);
-
     const [drawingColor, setDrawingColor] = React.useState("rgb(255,0,0)"); // Default color is #ff0000
+    const [drawing, setDrawing] = useState<boolean>(false);
+    const [gridCoords, setGridCoords] = useState<{
+        x: number;
+        y: number;
+    }>({
+        x: 0,
+        y: 0
+    });
+
+    // Draw empty grid
+    const initGrid = () => {
+        const ctx = canvasRef?.current?.getContext("2d");
+        if (ctx) {
+            for (let x=0;x<27;x++)
+            {
+                for (let y=0;y<29;y++)
+                {
+                    if (getHoldNum(x, y) !== -1) {
+                        ctx.beginPath();
+                        ctx.roundRect(x * 20+2, y * 20+2, 16, 16,  [5,5,5,5]);
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+    }
 
     async function toBase64(file:any) {
         return new Promise((resolve, reject) => {
@@ -29,7 +55,7 @@ export default function DrawCanvas()
 
     const savePixels = () => {
         if (canvasRef.current) {
-            let canvasUrl = canvasRef.current.toDataURL();
+            let canvasUrl = canvasRef.current?.toDataURL();
             const createEl = document.createElement('a');
             createEl.href = canvasUrl;
 
@@ -52,7 +78,7 @@ export default function DrawCanvas()
         // Rest of the logic here
         if (files && files[0]) {
             if (canvasRef.current) {
-                const ctx = canvasRef.current.getContext("2d");
+                const ctx = canvasRef.current?.getContext("2d");
                 ctx?.clearRect(0, 0, 540, 580);
                 const previewCtx = previewCanvasRef?.current?.getContext("2d");
                 previewCtx?.clearRect(0, 0, 540, 580);
@@ -101,6 +127,8 @@ export default function DrawCanvas()
         }
     }
 
+    initGrid();
+
 return (
     <>
         <p></p>
@@ -109,21 +137,22 @@ return (
             ref={canvasRef}
             width="540"
             height="580"
-            style={{ border: "2px solid black" }}
+            style={{ border: "2px solid black", touchAction: "none" }}
+
 
             // remove pixel (right click)
             onContextMenu={
                 (e) => {
                     e.preventDefault();
                     if (canvasRef.current) {
-                        const ctx = canvasRef.current.getContext("2d");
+                        const ctx = canvasRef.current?.getContext("2d");
                         if (ctx) {
-                            let x = Math.round(coords.x / 20);
-                            let y = Math.round(coords.y / 20);
+                            let x = Math.round((coords.x-10) / 20);
+                            let y = Math.round((coords.y-10) / 20);
                             if (x > 26) x = 26;
                             if (y > 28) y = 28;
 
-                            if (getHoldNum(x, y) !== -1) {
+                            if (!isNaN(x) && !isNaN(y) && getHoldNum(x, y) !== -1) {
                                 ctx.beginPath();
                                 ctx.clearRect(x * 20-1, y * 20-1, 22, 22);
                                 deletePixel(x, y);
@@ -133,19 +162,33 @@ return (
                 }
 
             }
-            onMouseMove={ // while moving
+            onPointerDown={
                 (e) => {
-                    if (e.buttons === 1) {  // while LEFT mousedown and moving
-                        handleCoords((e as unknown) as MouseEvent);
-                        if (canvasRef.current) {
-                            const ctx = canvasRef.current.getContext("2d");
+                    e.preventDefault();
+                    setDrawing(true);
+                }
+            }
+            onPointerUp={
+                (e) => {
+                    e.preventDefault();
+                    setDrawing(false);
+                }
+            }
+            onPointerMove={
+                (e) => {
+                        handleCoords((e as unknown) as any);
+                        if (canvasRef.current && drawing) {
+                            const ctx = canvasRef.current?.getContext("2d");
                             if (ctx) {
-                                let x = Math.round(coords.x / 20);
-                                let y = Math.round(coords.y / 20);
+                                let x = Math.round((coords.x-10) / 20);
+                                let y = Math.round((coords.y-10) / 20);
+                                console.log("TOUCH CANVAS",x,y);
                                 if (x > 26) x = 26;
                                 if (y > 28) y = 28;
 
-                                if (getHoldNum(x, y) !== -1) {
+                                setGridCoords({x,y});
+
+                                if (!isNaN(x) && !isNaN(y) && getHoldNum(x, y) !== -1) {
                                     ctx.beginPath();
                                     ctx.roundRect(x * 20+2, y * 20+2, 16, 16,  [5,5,5,5]);
                                     ctx.stroke();
@@ -159,9 +202,38 @@ return (
                                 }
                             }
                         }
+                }
+            }
+            /*
+            onMouseMove={ // while moving
+                (e) => {
+                        handleCoords((e as unknown) as MouseEvent);
+                        if (canvasRef.current) {
+                            const ctx = canvasRef.current?.getContext("2d");
+                            if (ctx) {
+                                let x = Math.round((coords.x-10) / 20);
+                                let y = Math.round((coords.y-10) / 20);
+                                if (x > 26) x = 26;
+                                if (y > 28) y = 28;
+
+                                setGridCoords({x,y});
+
+                                if (!isNaN(x) && !isNaN(y) && getHoldNum(x, y) !== -1) {
+                                    if (e.buttons === 1) {  // while LEFT mousedown and moving
+                                        ctx.beginPath();
+                                        ctx.roundRect(x * 20+2, y * 20+2, 16, 16,  [5,5,5,5]);
+                                        ctx.stroke();
+                                        ctx.fillStyle = drawingColor;
+                                        ctx.fill();
+                                        let rgb = drawingColor.replace(/[^\d,]/g, '').split(',');
+                                        addPixel(x, y, Number(rgb[0]), Number(rgb[1]), Number(rgb[2]));
+                                    }
+                            }
+                        }
                     }
                 }
             }
+             */
         ></canvas>
         <p></p>
         <ColorPicker onChangeColor={setDrawingColor}/>
@@ -169,8 +241,9 @@ return (
         <button type="button" className="btn btn-warning"
             onClick={() => {
                 if (canvasRef.current) {
-                    const ctx = canvasRef.current.getContext("2d");
+                    const ctx = canvasRef.current?.getContext("2d");
                     ctx?.clearRect(0, 0, 540, 580);
+                    initGrid();
                     clearPixels();
                 }
             }}
@@ -180,6 +253,10 @@ return (
         <span> </span>
         <button type="button" className="btn btn-success"
             onClick={() => {
+                if (!isConnected)
+                {
+                    connect();
+                }
                 publishPixels();
             }}
         >
@@ -201,6 +278,10 @@ return (
             height="28"
             style={{visibility: 'hidden'}}
         />
+        <p><>Draw: {drawing?"yes":"no"}</></p>
+        <p><>X: {coords.x}  Y: {coords.y}</></p>
+        <p><>Col: {gridCoords.x}  Row: {gridCoords.y}</></p>
+
     </>
 );
 }
